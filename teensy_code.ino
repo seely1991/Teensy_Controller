@@ -331,7 +331,7 @@ void loop() {
       if (digitalRead(selectPin) == LOW){
         if (!gameState) {
           //notworking here?
-          if (unsigned(currentIndex) < sizeof(drumPresets)/sizeof(gamePresets[0])){
+          if (unsigned(currentIndex) < sizeof(drumPresets)/sizeof(drumPresets[0])){
             Serial.println(currentIndex);
             currentIndex++;
             Serial.println(currentIndex);
@@ -341,7 +341,7 @@ void loop() {
           currentPreset = drumPresets[currentIndex];
           Serial.println(currentPreset.folder);
         }else{
-          if (unsigned(currentIndex) < sizeof(gamePresets)){
+          if (unsigned(currentIndex) < sizeof(gamePresets)/sizeof(gamePresets[0])){
             currentIndex++;
             Serial.print(currentIndex);
           }else{
