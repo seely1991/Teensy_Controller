@@ -59,6 +59,10 @@ class Preset {
   String startButton;
   String selectButton;
   Vector<String> bgr;
+  void setBgrVector(String arr[]) {
+          for (int i = 0; (unsigned)i < sizeof(arr); i++) {
+              bgr.push_back(arr[i]);
+          }
   void playFile(String input) {
     playSdWav1.play((folder + "/" + input + ".wav").c_str());
   }
@@ -164,7 +168,7 @@ void setup() {
   SMB1.l = "powerup";
   SMB1.r = "1-up";
   String smbArr[] = {"theme", "theme", "water", "castle", "undrwrld"};
-  SMB1.bgr = smbArr;
+  SMB1.setBgrVector(smbArr);
   
   megaMan.a = "shoor";
   megaMan.b = "jump";
@@ -177,7 +181,7 @@ void setup() {
   megaMan.l = "death";
   megaMan.r = "life";
   String mmArr[] = {"airman", "bombman", "elecman", "cutman", "skullman", "snakeman", "sparkman", "wily"};
-  megaMan.bgr = mmArr;
+  megaMan.setBgrVector(mmArr);  
   
   LOZ.a = "swrdslsh";
   LOZ.b = "shield";
@@ -190,7 +194,7 @@ void setup() {
   LOZ.l = "secret";
   LOZ.r = "recorder";
   String lozArr[] = {"dthmnt", "dungeon", "theme"};
-  LOZ.bgr = lozArr;
+  LOZ.setBgrVector(lozArr);
   
   sonic.a = "charge";
   sonic.b = "jump";
@@ -203,7 +207,7 @@ void setup() {
   sonic.l = "ringlose";
   sonic.r = "wrjump";
   String sonicArr[] = {"anglisl1", "anglisl2", "emrldhill", "hydro1", "hydro2"};
-  sonic.bgr = sonicArr;
+  sonic.setBgrVector(sonicArr);
 
   drumPresets[0] = kit606;
   drumPresets[1] = kit707;
