@@ -300,27 +300,36 @@ void loop() {
 
   if (buttonLeft.update()){
     if (buttonLeft.fallingEdge()){
+      //if select is pressed also
       if (digitalRead(selectPin) == LOW){
+        //if it's greater than zero, increment up
         if (currentIndex > 0){
           currentIndex--;
           Serial.print(currentIndex);
+        //if it is zero, cycle back around to the last index
         }else{
+          //what to do if in gameState
           if (gameState){
+            //currentIndex = last index of gamePresets
             currentIndex = sizeof(gamePresets)/sizeof(gamePresets[0]) - 1;
             Serial.print(currentIndex);
           }else{
+            //currentIndex = last index of drumPresets
             currentIndex = sizeof(drumPresets)/sizeof(gamePresets[0]) - 1;
             Serial.print(currentIndex);
           }
         }
+        //sets the current preset with the previously set index
         if (gameState) {
           currentPreset = gamePresets[currentIndex];
         }else{
           currentPreset = drumPresets[currentIndex];
         }
       }else{
+        //do this only if select isn't pressed
          konamiCodeCheck("Left");
       }
+      //do this if select is pressed or not (put this with konamiCodeCheck if it should only be done without select
       Serial.print("Left");
       currentPreset.playFile(currentPreset.left);
     }
@@ -331,7 +340,7 @@ void loop() {
       if (digitalRead(selectPin) == LOW){
         if (!gameState) {
           //notworking here?
-          if (unsigned(currentIndex) < sizeof(drumPresets)/sizeof(drumPresets[0])){
+          if (unsigned(currentIndex) < sizeof(drumPresets)/sizeof(drumPresets[0]) - 1){
             Serial.println(currentIndex);
             currentIndex++;
             Serial.println(currentIndex);
@@ -341,7 +350,7 @@ void loop() {
           currentPreset = drumPresets[currentIndex];
           Serial.println(currentPreset.folder);
         }else{
-          if (unsigned(currentIndex) < sizeof(gamePresets)/sizeof(gamePresets[0])){
+          if (unsigned(currentIndex) < sizeof(gamePresets)/sizeof(gamePresets[0]) - 1){
             currentIndex++;
             Serial.print(currentIndex);
           }else{
@@ -362,18 +371,23 @@ void loop() {
     if (buttonStart.fallingEdge()){
       Serial.print("Start");
         if (konamiCode[konamiCodePlace] == "Start"){
-          Serial.print("you did the Konami code!");
+          Serial.println("you did the Konami code!");
           gameState = !gameState;
+          //change so that you can get out of gamePresets if done a second time
           currentPreset = gamePresets[0];
         }
+      //always happens whether successfully inputting code or not
         konamiCodePlace = 0;
       if (digitalRead(selectPin) == LOW){
+        //turns on loop if select is held
         loopOn = !loopOn;
         if (gameState) {
+          //checks to see if gamestate is true and loop has been turned on
           if (loopOn == true) {
             //not working
             currentPreset.playRandomBgr();
           }else{
+            //if already playing stops playing
             playSdWav2.stop();
           }
         }
