@@ -77,7 +77,7 @@ class Preset {
       b = "kick";
       x = "hhclosed";
       y = "hhopen";
-      up = "hclosed";
+      up = "hhclosed";
       down = "kick";
       left = "hhopen";
       right = "snare";
