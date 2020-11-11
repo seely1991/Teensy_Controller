@@ -115,8 +115,11 @@ float vol = 0.5;
 
 int tempo = 200;
 
-Preset drumPresets[6];
-Preset gamePresets[4];
+int numberOfDrums = 6;
+int numberOfGames = 4;
+
+Preset drumPresets[numberOfDrums];
+Preset gamePresets[numberOfGames];
 
 int currentIndex = 0;
 
@@ -311,11 +314,11 @@ void loop() {
           //what to do if in gameState
           if (gameState){
             //currentIndex = last index of gamePresets
-            currentIndex = sizeof(gamePresets)/sizeof(gamePresets[0]) - 1;
+            currentIndex = numberOfGames - 1;
             Serial.print(currentIndex);
           }else{
             //currentIndex = last index of drumPresets
-            currentIndex = sizeof(drumPresets)/sizeof(gamePresets[0]) - 1;
+            currentIndex = numberOfDrums - 1;
             Serial.print(currentIndex);
           }
         }
@@ -339,7 +342,7 @@ void loop() {
       if (digitalRead(selectPin) == LOW){
         if (!gameState) {
           //notworking here?
-          if (unsigned(currentIndex) < sizeof(drumPresets)/sizeof(drumPresets[0]) - 1){
+          if (currentIndex < numberOfDrums - 1){
             Serial.println(currentIndex);
             currentIndex++;
             Serial.println(currentIndex);
@@ -349,7 +352,7 @@ void loop() {
           currentPreset = drumPresets[currentIndex];
           Serial.println(currentPreset.folder);
         }else{
-          if (unsigned(currentIndex) < sizeof(gamePresets)/sizeof(gamePresets[0]) - 1){
+          if (currentIndex < numberOfGames - 1){
             currentIndex++;
             Serial.print(currentIndex);
           }else{
