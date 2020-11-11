@@ -339,31 +339,41 @@ void loop() {
 
   if (buttonRight.update()){
     if (buttonRight.fallingEdge()){
+      //if select is pressed
       if (digitalRead(selectPin) == LOW){
+        //if not in game state
         if (!gameState) {
           //notworking here?
+          //if not at the end of the list, index goes up
           if (currentIndex < numberOfDrums - 1){
             Serial.println(currentIndex);
             currentIndex++;
             Serial.println(currentIndex);
           }else{
+            //if at the end of the list, index goes back to zero
             currentIndex = 0;
           }
+          //sets the drum preset
           currentPreset = drumPresets[currentIndex];
           Serial.println(currentPreset.folder);
+          //what to do if in gamestate
         }else{
+          //if not at the end of the list, index goes up
           if (currentIndex < numberOfGames - 1){
             currentIndex++;
             Serial.print(currentIndex);
           }else{
+            //if at the end of the list, index goes back to zero
             currentIndex = 0;
             Serial.print(currentIndex);
           }
           currentPreset = gamePresets[currentIndex];
         }
       }else{
+        //check for konami code if select is not being pressed
         konamiCodeCheck("Right");
       }
+      //plays no matter what
       currentPreset.playFile(currentPreset.right);
     }
   }
@@ -373,14 +383,16 @@ void loop() {
       Serial.print("Start");
       if (gameState) {
         if (playSdWav2.isPlaying()){
-          currentPreset.playRandomBgr();
-        }else{
+          //if in gamestate and something is already playing, stop playing
           playSdWav2.stop();
+        }else{
+          //if not playing, start playing a random bgr
+          currentPreset.playRandomBgr();
         }
       if (konamiCode[konamiCodePlace] == "Start"){
         Serial.println("***You did the Konami code!***");
         gameState = !gameState;
-        //change so that you can get out of gamePresets if done a second time
+        //change so that you can get out of drumPresets if done a second time
         currentPreset = drumPresets[0];
         Serial.print(currentPreset.folder);
       }
