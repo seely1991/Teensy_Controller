@@ -41,8 +41,6 @@ Bounce buttonLeft = Bounce(20, 10);
 Bounce buttonStart = Bounce(8, 10);
 Bounce buttonSelect = Bounce(21, 10);
 
-int selectPin = 21;
-
 class Preset {
   public:
   String folder;
@@ -67,7 +65,8 @@ class Preset {
   void playFile(String input) {
     String directory = folder + "/" + input + ".wav";
     playSdWav1.play(directory.c_str());
-    Serial.println(directory);
+    Serial.println("input: " + input);
+    Serial.println("directory: " + directory);
   }
   void playRandomBgr() {
     //not working...
@@ -94,27 +93,6 @@ class Preset {
   }
 };
 
-Preset kit606("606");
-Preset kit707("707");
-Preset kit808("808");
-Preset kit909("909");
-Preset goingPostal("postal");
-Preset vinylKit("vinyl");
-
-Preset SMB1("smb");
-Preset megaMan("megaman");
-Preset LOZ("loz");
-Preset sonic("sonic");
-Preset EJW2("606");
-
-//check here
-Preset drumPresets[6] = { kit606, kit707, kit808, kit909, goingPostal, vinylKit};
-Preset gamePresets[5] = {SMB1, megaMan, LOZ, sonic};
-
-int currentIndex = 3;
-
-
-Preset currentPreset = drumPresets[currentIndex];
 
 String konamiCode[] = {"Up", "Up", "Down", "Down", "Left", "Right", "Left", "Right", "B", "A", "Start"};
 int konamiCodePlace = 0;
@@ -127,20 +105,26 @@ bool konamiCodeCheck (String input) {
   return true;
 }
 
+int selectPin = 21;
+
 bool loopOn = false;
 
-bool gameState = false;
+bool gameState = true;
 
 float vol = 0.5;
 
 int tempo = 200;
 
+Preset drumPresets[6];
+Preset gamePresets[4];
+
+int currentIndex = 0;
+
+Preset currentPreset;
+
 
 void setup() {
-/*  for (byte i = 0; i < sizeof(buttonPins) - 1; i++) {
-    pinMode(buttonPins[i], INPUT);
-    } 
-*/
+
   pinMode(0, INPUT);
   pinMode(1, INPUT);
   pinMode(2, INPUT);
@@ -153,13 +137,21 @@ void setup() {
   pinMode(17, INPUT);
   pinMode(20, INPUT);
   pinMode(21, INPUT);
-
+  
+  Preset kit606("606");
+  Preset kit707("707");
+  Preset kit808("808");
+  Preset kit909("909");
+  Preset vinylKit("vinyl");
+  
+  Preset goingPostal("postal");
   goingPostal.y = "clap";
   goingPostal.left = "revclap";
   goingPostal.right = "revsnare";
   goingPostal.l = "guio";
   goingPostal.r = "rim";
-  
+
+  Preset SMB1("smb");
   SMB1.a = "coin";
   SMB1.b = "jump";
   SMB1.x = "firework";
@@ -173,6 +165,7 @@ void setup() {
   String smbArr[] = {"theme", "theme", "water", "castle", "undrwrld"};
   SMB1.setBgrVector(smbArr, sizeof(smbArr)/sizeof(smbArr[0]));
   
+  Preset megaMan("megaman");
   megaMan.a = "shoor";
   megaMan.b = "jump";
   megaMan.x = "hit";
@@ -186,6 +179,7 @@ void setup() {
   String mmArr[] = {"airman", "bombman", "elecman", "cutman", "skullman", "snakeman", "sparkman", "wily"};
   megaMan.setBgrVector(mmArr, sizeof(mmArr)/sizeof(mmArr[0]));  
   
+  Preset LOZ("loz");
   LOZ.a = "swrdslsh";
   LOZ.b = "shield";
   LOZ.x = "arrow";
@@ -199,6 +193,7 @@ void setup() {
   String lozArr[] = {"dthmnt", "dungeon", "theme"};
   LOZ.setBgrVector(lozArr, sizeof(lozArr)/sizeof(lozArr[0]));
   
+  Preset sonic("sonic");  
   sonic.a = "charge";
   sonic.b = "jump";
   sonic.x = "slash";
@@ -211,6 +206,8 @@ void setup() {
   sonic.r = "wrjump";
   String sonicArr[] = {"anglisl1", "anglisl2", "emrldhill", "hydro1", "hydro2"};
   sonic.setBgrVector(sonicArr, sizeof(sonicArr)/sizeof(sonicArr[0]));
+  
+  //Preset EJW2("606");
 
   drumPresets[0] = kit606;
   drumPresets[1] = kit707;
@@ -223,7 +220,9 @@ void setup() {
   gamePresets[1] = megaMan;
   gamePresets[2] = LOZ;
   gamePresets[3] = sonic;
-  gamePresets[4] = EJW2;
+  //gamePresets[4] = EJW2;
+  
+  currentPreset = gamePresets[currentIndex];
 
   Serial.begin(9600);
   AudioMemory(8);
@@ -252,7 +251,6 @@ void loop() {
 
   if (buttonA.update()){
     if (buttonA.fallingEdge()){
-      Serial.println("A");
       currentPreset.playFile(currentPreset.a);
       konamiCodeCheck("A");
     }
@@ -260,14 +258,12 @@ void loop() {
 
   if (buttonB.update()){
     if (buttonB.fallingEdge()){
-      Serial.print("B");
       currentPreset.playFile(currentPreset.b);
       konamiCodeCheck("B");
     }
   }
   if (buttonX.update()){
     if (buttonX.fallingEdge()){
-      Serial.print("X");
       currentPreset.playFile(currentPreset.x);
       konamiCodePlace = 0;
     }
@@ -275,7 +271,6 @@ void loop() {
 
   if (buttonY.update()){
     if (buttonY.fallingEdge()){
-      Serial.print("Y");
       currentPreset.playFile(currentPreset.y);
       konamiCodePlace = 0;
     }
@@ -287,7 +282,6 @@ void loop() {
         vol = vol + 0.1;
         sgtl5000_1.volume(vol);
       }
-      Serial.print("Up");
       currentPreset.playFile(currentPreset.up);
       konamiCodeCheck("Up");
     }
@@ -300,8 +294,7 @@ void loop() {
         vol = vol - 0.1;
         sgtl5000_1.volume(vol);
       }
-      Serial.print("Down");
-       konamiCodeCheck("Down");
+      konamiCodeCheck("Down");
     }
   }
 
@@ -337,7 +330,6 @@ void loop() {
          konamiCodeCheck("Left");
       }
       //do this if select is pressed or not (put this with konamiCodeCheck if it should only be done without select
-      Serial.print("Left");
       currentPreset.playFile(currentPreset.left);
     }
   }
@@ -367,7 +359,6 @@ void loop() {
           currentPreset = gamePresets[currentIndex];
         }
       }else{
-        Serial.print("Right");
         konamiCodeCheck("Right");
       }
       currentPreset.playFile(currentPreset.right);
@@ -377,27 +368,24 @@ void loop() {
    if (buttonStart.update()){
     if (buttonStart.fallingEdge()){
       Serial.print("Start");
-        if (konamiCode[konamiCodePlace] == "Start"){
-          Serial.println("you did the Konami code!");
-          gameState = !gameState;
-          //change so that you can get out of gamePresets if done a second time
-          currentPreset = gamePresets[0];
-          Serial.print(currentPreset.folder);
+      if (gameState) {
+        if (playSdWav2.isPlaying()){
+          currentPreset.playRandomBgr();
+        }else{
+          playSdWav2.stop();
         }
+      if (konamiCode[konamiCodePlace] == "Start"){
+        Serial.println("***You did the Konami code!***");
+        gameState = !gameState;
+        //change so that you can get out of gamePresets if done a second time
+        currentPreset = drumPresets[0];
+        Serial.print(currentPreset.folder);
+      }
       //always happens whether successfully inputting code or not
-        konamiCodePlace = 0;
+      konamiCodePlace = 0;
       if (digitalRead(selectPin) == LOW){
         //turns on loop if select is held
         loopOn = !loopOn;
-        if (gameState) {
-          //checks to see if gamestate is true and loop has been turned on
-          if (loopOn == true) {
-            //not working
-            currentPreset.playRandomBgr();
-          }else{
-            //if already playing stops playing
-            playSdWav2.stop();
-          }
         }
       }
     }
@@ -405,7 +393,6 @@ void loop() {
 
   if (buttonSelect.update()){
     if (buttonSelect.fallingEdge()){
-      Serial.print("Select");
       konamiCodePlace = 0;
     }
   }
@@ -415,7 +402,6 @@ void loop() {
       if (digitalRead(selectPin) == LOW && tempo > 100) {
         tempo = tempo +5;
       }
-      Serial.print("L");
       currentPreset.playFile(currentPreset.l);
       konamiCodePlace = 0;
     }
@@ -426,7 +412,6 @@ void loop() {
       if (digitalRead(selectPin) == LOW && tempo < 1000) {
          tempo = tempo -5;
       }
-      Serial.print("R");
       currentPreset.playFile(currentPreset.r);
       konamiCodePlace = 0;
     }
