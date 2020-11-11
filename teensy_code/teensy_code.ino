@@ -59,12 +59,15 @@ class Preset {
   String startButton;
   String selectButton;
   Vector<String> bgr;
-  void setBgrVector(String arr[]) {
-          for (int i = 0; (unsigned)i < sizeof(arr); i++) {
-              bgr.push_back(arr[i]);
-          }
+  void setBgrVector(String arr[], int arrSize) {
+    for (int i = 0; i < arrSize; i++) {
+        bgr.push_back(arr[i]);
+    }
+  }
   void playFile(String input) {
-    playSdWav1.play((folder + "/" + input + ".wav").c_str());
+    String directory = folder + "/" + input + ".wav";
+    playSdWav1.play(directory.c_str());
+    Serial.println(directory);
   }
   void playRandomBgr() {
     //not working...
@@ -98,9 +101,9 @@ Preset kit909("909");
 Preset goingPostal("postal");
 Preset vinylKit("vinyl");
 
-Preset SMB1("SMB1");
-Preset megaMan("MegaMan");
-Preset LOZ("LOZ");
+Preset SMB1("smb");
+Preset megaMan("megaman");
+Preset LOZ("loz");
 Preset sonic("sonic");
 Preset EJW2("606");
 
@@ -108,7 +111,7 @@ Preset EJW2("606");
 Preset drumPresets[6] = { kit606, kit707, kit808, kit909, goingPostal, vinylKit};
 Preset gamePresets[5] = {SMB1, megaMan, LOZ, sonic};
 
-int currentIndex = 0;
+int currentIndex = 3;
 
 
 Preset currentPreset = drumPresets[currentIndex];
@@ -168,7 +171,7 @@ void setup() {
   SMB1.l = "powerup";
   SMB1.r = "1-up";
   String smbArr[] = {"theme", "theme", "water", "castle", "undrwrld"};
-  SMB1.setBgrVector(smbArr);
+  SMB1.setBgrVector(smbArr, sizeof(smbArr)/sizeof(smbArr[0]));
   
   megaMan.a = "shoor";
   megaMan.b = "jump";
@@ -181,7 +184,7 @@ void setup() {
   megaMan.l = "death";
   megaMan.r = "life";
   String mmArr[] = {"airman", "bombman", "elecman", "cutman", "skullman", "snakeman", "sparkman", "wily"};
-  megaMan.setBgrVector(mmArr);  
+  megaMan.setBgrVector(mmArr, sizeof(mmArr)/sizeof(mmArr[0]));  
   
   LOZ.a = "swrdslsh";
   LOZ.b = "shield";
@@ -194,7 +197,7 @@ void setup() {
   LOZ.l = "secret";
   LOZ.r = "recorder";
   String lozArr[] = {"dthmnt", "dungeon", "theme"};
-  LOZ.setBgrVector(lozArr);
+  LOZ.setBgrVector(lozArr, sizeof(lozArr)/sizeof(lozArr[0]));
   
   sonic.a = "charge";
   sonic.b = "jump";
@@ -207,7 +210,7 @@ void setup() {
   sonic.l = "ringlose";
   sonic.r = "wrjump";
   String sonicArr[] = {"anglisl1", "anglisl2", "emrldhill", "hydro1", "hydro2"};
-  sonic.setBgrVector(sonicArr);
+  sonic.setBgrVector(sonicArr, sizeof(sonicArr)/sizeof(sonicArr[0]));
 
   drumPresets[0] = kit606;
   drumPresets[1] = kit707;
@@ -249,7 +252,7 @@ void loop() {
 
   if (buttonA.update()){
     if (buttonA.fallingEdge()){
-      Serial.print("A");
+      Serial.println("A");
       currentPreset.playFile(currentPreset.a);
       konamiCodeCheck("A");
     }
@@ -371,7 +374,7 @@ void loop() {
     }
   }
 
-  if (buttonStart.update()){
+   if (buttonStart.update()){
     if (buttonStart.fallingEdge()){
       Serial.print("Start");
         if (konamiCode[konamiCodePlace] == "Start"){
@@ -379,6 +382,7 @@ void loop() {
           gameState = !gameState;
           //change so that you can get out of gamePresets if done a second time
           currentPreset = gamePresets[0];
+          Serial.print(currentPreset.folder);
         }
       //always happens whether successfully inputting code or not
         konamiCodePlace = 0;
