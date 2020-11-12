@@ -43,9 +43,9 @@ Bounce buttonSelect = Bounce(21, 10);
 
 char makeDirectory(char folder, char file){
   char directory = folder;
-    strcat(directory, "/");
-    strcat(directory, file);
-    strcat(directory, ".wav");
+    strcat("/", directory);
+    strcat(file, directory);
+    strcat(".wav", directory);
   return directory;
 }
 
