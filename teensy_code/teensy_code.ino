@@ -88,18 +88,6 @@ char makeDirectory(char folder, char file){
     }
 };
 
-
-String konamiCode[] = {"Up", "Up", "Down", "Down", "Left", "Right", "Left", "Right", "B", "A", "Start"};
-int konamiCodePlace = 0;
-bool konamiCodeCheck (String input) {
-  if (konamiCode[konamiCodePlace] == input){
-    konamiCodePlace++;
-  }else{
-    konamiCodePlace = 0;
-  }
-  return true;
-}
-
 int selectPin = 21;
 
 bool loopOn = false;
@@ -119,6 +107,27 @@ Preset gamePresets[numberOfGames];
 int currentIndex = 0;
 
 Preset currentPreset;
+
+char konamiCode[11][9] = {"Up", "Up", "Down", "Down", "Left", "Right", "Left", "Right", "B", "A", "Start"};
+    int konamiCodePlace = 0;
+    bool konamiCodeCheck(const char *input) {
+      if (!strcmp(konamiCode[konamiCodePlace], input)){
+          if (konamiCodePlace == 10) {
+              konamiCodePlace = 0;
+              cout<<"***You did the konami code!***";
+              gameState = !gameState;
+              //change so that you can get out of drumPresets if done a second time
+              currentPreset = drumPresets[0];
+              Serial.print(currentPreset.folder);
+          }else{
+              konamiCodePlace++;
+          }
+        return true;
+      }else{
+        konamiCodePlace = 0;
+        return false;
+      }
+    }
 
 
 void setup() {
@@ -384,15 +393,8 @@ void loop() {
           //if not playing, start playing a random bgr
           currentPreset.playRandomBgr();
         }
-      if (konamiCode[konamiCodePlace] == "Start"){
-        Serial.println("***You did the Konami code!***");
-        gameState = !gameState;
-        //change so that you can get out of drumPresets if done a second time
-        currentPreset = drumPresets[0];
-        Serial.print(currentPreset.folder);
-      }
+        konamiCodeCheck("Start");
       //always happens whether successfully inputting code or not
-      konamiCodePlace = 0;
       if (digitalRead(selectPin) == LOW){
         //turns on loop if select is held
         loopOn = !loopOn;
