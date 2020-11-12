@@ -73,8 +73,9 @@ char makeDirectory(char folder, char file){
   void playFile(char *input) {
     char directory = makeDirectory(folder, input);
     playSdWav1.play(directory);
-    Serial.println("input: " + input);
-    Serial.println("directory: " + directory);
+    Serial.println(input);
+    Serial.print("directory: ");
+    Serial.print(directory);
   }
   void playRandomBgr() {
     //not working...
@@ -82,9 +83,20 @@ char makeDirectory(char folder, char file){
     int randIndex = rand() % 8;
     char directory = makeDirectory(folder, bgr[randIndex]);
     playSdWav2.play(directory);
-    Serial.println(directory);
+    Serial.println("playing background music: ");
+    Serial.print(directory);
   }
   Preset() {
+    strcpy(a, "snare");
+    strcpy(b, "kick");
+    strcpy(x, "hhclosed");
+    strcpy(y, "hhopen");
+    strcpy(up, "hhclosed");
+    strcpy(down, "kick");
+    strcpy(left, "hhopen");
+    strcpy(right, "snare");
+    strcpy(l, "clap");
+    strcpy(r, "rim");
     }
 };
 
@@ -98,11 +110,11 @@ float vol = 0.5;
 
 int tempo = 200;
 
-int numberOfDrums = 6;
-int numberOfGames = 4;
+Preset drumPresets[4];
+Preset gamePresets[4];
 
-Preset drumPresets[numberOfDrums];
-Preset gamePresets[numberOfGames];
+int numberOfDrums = sizeof(drumPresets)/sizeof(drumPresets[0]);
+int numberOfGames = sizeof(gamePresets)/sizeof(gamePresets[0]);
 
 int currentIndex = 0;
 
@@ -114,7 +126,8 @@ char konamiCode[11][9] = {"Up", "Up", "Down", "Down", "Left", "Right", "Left", "
       if (!strcmp(konamiCode[konamiCodePlace], input)){
           if (konamiCodePlace == 10) {
               konamiCodePlace = 0;
-              cout<<"***You did the konami code!***";
+              playSdWav2.stop();
+              Serial.println("***You did the konami code!***");
               gameState = !gameState;
               //change so that you can get out of drumPresets if done a second time
               currentPreset = drumPresets[0];
@@ -216,12 +229,10 @@ void setup() {
   
   //Preset EJW2("606");
 
-  drumPresets[0] = kit606;
-  drumPresets[1] = kit707;
-  drumPresets[2] = kit808;
-  drumPresets[3] = kit909;
-  drumPresets[4] = goingPostal;
-  drumPresets[5] = vinylKit;
+  drumPresets[0] = goingPostal;
+  drumPresets[1] = kit808;
+  drumPresets[2] = kit909;
+  drumPresets[3] = vinylKit;
 
   gamePresets[0] = SMB1;
   gamePresets[1] = megaMan;
@@ -251,7 +262,7 @@ void loop() {
   if (!gameState){
     if (loopOn == true) {
       //too loud
-      playSdWav2.play(makeDirectory(currentPreset.folder, currentPreset.y));
+      playSdWav2.play(makeDirectory(currentPreset.folder, currentPreset.x));
       delay(tempo);
     }
   }
@@ -309,6 +320,7 @@ void loop() {
     if (buttonLeft.fallingEdge()){
       //if select is pressed also
       if (digitalRead(selectPin) == LOW){
+        playSdWav2.stop();
         //if it's greater than zero, increment up
         if (currentIndex > 0){
           currentIndex--;
@@ -345,6 +357,7 @@ void loop() {
     if (buttonRight.fallingEdge()){
       //if select is pressed
       if (digitalRead(selectPin) == LOW){
+        playSdWav2.stop();
         //if not in game state
         if (!gameState) {
           //notworking here?
