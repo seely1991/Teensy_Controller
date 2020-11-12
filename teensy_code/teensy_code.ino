@@ -41,56 +41,51 @@ Bounce buttonLeft = Bounce(20, 10);
 Bounce buttonStart = Bounce(8, 10);
 Bounce buttonSelect = Bounce(21, 10);
 
-class Preset {
+char makeDirectory(char folder, char file){
+  char directory = folder;
+    strcat(directory, "/");
+    strcat(directory, file);
+    strcat(directory, ".wav");
+  return directory;
+}
+
+    class Preset {
   public:
-  String folder;
-  String a;
-  String b;
-  String x;
-  String y;
-  String up;
-  String down;
-  String left;
-  String right;
-  String l;
-  String r;
-  String startButton;
-  String selectButton;
-  Vector<String> bgr;
-  void setBgrVector(String arr[], int arrSize) {
-    for (int i = 0; i < arrSize; i++) {
-        bgr.push_back(arr[i]);
+  char folder[9];
+  char a[9];
+  char b[9];
+  char x[9];
+  char y[9];
+  char up[9];
+  char down[9];
+  char left[9];
+  char right[9];
+  char l[9];
+  char r[9];
+  char startButton;
+  char selectButton;
+  char bgr[8][9];
+  void setBgrArray(char arr[8][9]) {
+    for (int i = 0; i < 8; i++) {
+        strcpy(bgr[i], arr[i]);
     }
   }
-  void playFile(String input) {
-    String directory = folder + "/" + input + ".wav";
-    playSdWav1.play(directory.c_str());
+  void playFile(char *input) {
+    char directory = makeDirectory(folder, input);
+    playSdWav1.play(directory);
     Serial.println("input: " + input);
     Serial.println("directory: " + directory);
   }
   void playRandomBgr() {
     //not working...
     srand((unsigned)millis());
-    int arrSize = sizeof(bgr)/sizeof(bgr[0]);
-    int randIndex = rand() % arrSize;
-    playSdWav2.play((folder + "/" + bgr[randIndex] + ".wav").c_str());
+    int randIndex = rand() % 8;
+    char directory = makeDirectory(folder, bgr[randIndex]);
+    playSdWav2.play(directory);
+    Serial.println(directory);
   }
   Preset() {
     }
-  Preset(String folderDir){
-      folder = folderDir;
-      a = "snare";
-      b = "kick";
-      x = "hhclosed";
-      y = "hhopen";
-      up = "hhclosed";
-      down = "kick";
-      left = "hhopen";
-      right = "snare";
-      l = "clap";
-      r = "rim";
-      startButton = "";
-  }
 };
 
 
@@ -148,67 +143,67 @@ void setup() {
   Preset vinylKit("vinyl");
   
   Preset goingPostal("postal");
-  goingPostal.y = "clap";
-  goingPostal.left = "revclap";
-  goingPostal.right = "revsnare";
-  goingPostal.l = "guio";
-  goingPostal.r = "rim";
+  strcpy(goingPostal.y, "clap");
+  strcpy(goingPostal.left, "revclap");
+  strcpy(goingPostal.right, "revsnare");
+  strcpy(goingPostal.l, "guio");
+  strcpy(goingPostal.r, "rim");
 
   Preset SMB1("smb");
-  SMB1.a = "coin";
-  SMB1.b = "jump";
-  SMB1.x = "firework";
-  SMB1.y = "fireball";
-  SMB1.up = "blockbr";
-  SMB1.down = "pipe";
-  SMB1.left = "powerup";
-  SMB1.right = "stomp";
-  SMB1.l = "powerup";
-  SMB1.r = "1-up";
-  String smbArr[] = {"theme", "theme", "water", "castle", "undrwrld"};
-  SMB1.setBgrVector(smbArr, sizeof(smbArr)/sizeof(smbArr[0]));
+  strcpy(SMB1.a, "coin");
+  strcpy(SMB1.b, "jump");
+  strcpy(SMB1.x, "firework");
+  strcpy(SMB1.y, "fireball");
+  strcpy(SMB1.up, "blockbr");
+  strcpy(SMB1.down, "pipe");
+  strcpy(SMB1.left, "powerup");
+  strcpy(SMB1.right, "stomp");
+  strcpy(SMB1.l, "powerup");
+  strcpy(SMB1.r, "1-up");
+  char smbArr[8][9] = {"theme", "theme", "water", "castle", "undrwrld", "theme", "castle", "undrwrld"};
+  SMB1.setBgrArray(smbArr);
   
   Preset megaMan("megaman");
-  megaMan.a = "shoor";
-  megaMan.b = "jump";
-  megaMan.x = "hit";
-  megaMan.y = "blowup";
-  megaMan.up = "exit";
-  megaMan.down = "appear";
-  megaMan.left = "energy";
-  megaMan.right = "sheen";
-  megaMan.l = "death";
-  megaMan.r = "life";
-  String mmArr[] = {"airman", "bombman", "elecman", "cutman", "skullman", "snakeman", "sparkman", "wily"};
-  megaMan.setBgrVector(mmArr, sizeof(mmArr)/sizeof(mmArr[0]));  
+  strcpy(megaMan.a, "shoot");
+  strcpy(megaMan.b, "jump");
+  strcpy(megaMan.x, "hit");
+  strcpy(megaMan.y, "blowup");
+  strcpy(megaMan.up, "exit");
+  strcpy(megaMan.down, "appear");
+  strcpy(megaMan.left, "energy");
+  strcpy(megaMan.right, "sheen");
+  strcpy(megaMan.l, "death");
+  strcpy(megaMan.r, "life");
+  char mmArr[8][9] = {"airman", "bombman", "elecman", "cutman", "skullman", "snakeman", "sparkman", "wily"};
+  megaMan.setBgrArray(mmArr);  
   
   Preset LOZ("loz");
-  LOZ.a = "swrdslsh";
-  LOZ.b = "shield";
-  LOZ.x = "arrow";
-  LOZ.y = "bombdrop";
-  LOZ.up = "magicrod";
-  LOZ.down = "enmyhit";
-  LOZ.left = "bombblow";
-  LOZ.right = "enmydie";
-  LOZ.l = "secret";
-  LOZ.r = "recorder";
-  String lozArr[] = {"dthmnt", "dungeon", "theme"};
-  LOZ.setBgrVector(lozArr, sizeof(lozArr)/sizeof(lozArr[0]));
+  strcpy(LOZ.a, "swrdslsh");
+  strcpy(LOZ.b, "shield");
+  strcpy(LOZ.x, "arrow");
+  strcpy(LOZ.y, "bombdrop");
+  strcpy(LOZ.up, "magicrod");
+  strcpy(LOZ.down, "enmyhit");
+  strcpy(LOZ.left, "bombblow");
+  strcpy(LOZ.right, "enmydie");
+  strcpy(LOZ.l, "secret");
+  strcpy(LOZ.r, "recorder");
+  char lozArr[8][9] = {"dthmnt", "dungeon", "theme", "dthmnt", "dungeon", "theme", "dungeon", "theme"};
+  LOZ.setBgrArray(lozArr);
   
   Preset sonic("sonic");  
-  sonic.a = "charge";
-  sonic.b = "jump";
-  sonic.x = "slash";
-  sonic.y = "ring";
-  sonic.up = "spring";
-  sonic.down = "itembrk";
-  sonic.left = "screech";
-  sonic.right = "stall";
-  sonic.l = "ringlose";
-  sonic.r = "wrjump";
-  String sonicArr[] = {"anglisl1", "anglisl2", "emrldhill", "hydro1", "hydro2"};
-  sonic.setBgrVector(sonicArr, sizeof(sonicArr)/sizeof(sonicArr[0]));
+  strcpy(sonic.a, "charge");
+  strcpy(sonic.b, "jump");
+  strcpy(sonic.x, "slash");
+  strcpy(sonic.y, "ring");
+  strcpy(sonic.up, "spring");
+  strcpy(sonic.down, "itembrk");
+  strcpy(sonic.left, "screech");
+  strcpy(sonic.right, "stall");
+  strcpy(sonic.l, "ringlose");
+  strcpy(sonic.r, "wrjump");
+  char sonicArr[8][9] = {"anglisl1", "anglisl2", "emrldhll", "hydro1", "hydro2", "anglisl2", "emrldhll", "hydro2"};
+  sonic.setBgrArray(sonicArr);
   
   //Preset EJW2("606");
 
@@ -247,7 +242,7 @@ void loop() {
   if (!gameState){
     if (loopOn == true) {
       //too loud
-      playSdWav2.play((currentPreset.folder + "/" + currentPreset.y + ".wav").c_str());
+      playSdWav2.play(makeDirectory(currentPreset.folder, currentPreset.y));
       delay(tempo);
     }
   }
