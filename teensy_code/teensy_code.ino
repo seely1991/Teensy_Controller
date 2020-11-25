@@ -54,11 +54,11 @@ float vol = 0.8;
 
 int tempo = 200;
 
-const char *drumPresets[4];
-const char *gamePresets[4];
+const char *drumPresets[40];
+const char *gamePresets[40];
 
-int numberOfDrums = sizeof(drumPresets)/sizeof(drumPresets[0]);
-int numberOfGames = sizeof(gamePresets)/sizeof(gamePresets[0]);
+int numberOfDrums = 0;
+int numberOfGames = 0;
 
 int currentIndex = 0;
 
@@ -127,6 +127,33 @@ char konamiCode[11][9] = {"Up", "Up", "Down", "Down", "Left", "Right", "Left", "
         return false;
       }
     }
+    
+    
+    
+    void scanFolder(const char *folderName, bool isGame) {
+        File directory = SD.open(folderName);
+        int index = 0;
+        while (true) {
+            File entry = directory.openNextFile();
+            if (entry) {
+                if (isGame) {
+                    gamePresets[index] = entry.name();
+                    numberOfGames++;
+                }else{
+                    drumPresets[index] = entry.name();
+                    numberOfDrums++;
+                }
+                index++;
+            }else{
+                directory.rewindDirectory();
+                break;
+            }
+        }
+    }
+    
+    
+    
+    
 
 
 void setup() {
@@ -143,17 +170,9 @@ void setup() {
   pinMode(17, INPUT);
   pinMode(20, INPUT);
   pinMode(21, INPUT);
-  
-  drumPresets[0] = "postal";
-  drumPresets[1] = "808"
-  drumPresets[2] = "909";
-  drumPresets[3] = "vinyl";
-  
-  gamePresets[0] = "megaman";
-  gamePresets[1] = "smb";
-  gamePresets[2] = "zelda";
-  gamePresets[3] = "sonic";
-
+    
+  scanFolder("_GAMES",true);
+  scanFolder("_DRUMS",false);
     
   currentPreset = gamePresets[currentIndex];
 
