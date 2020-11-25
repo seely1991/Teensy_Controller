@@ -90,7 +90,7 @@ void playRandomBgr() {
   while (true) {
     File entry = directory.openNextFile();
     if (entry) {
-      bgrSize++
+      bgrSize++;
     }else{
       directory.rewindDirectory();
       srand((unsigned)millis());
