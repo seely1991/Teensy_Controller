@@ -41,64 +41,8 @@ Bounce buttonLeft = Bounce(20, 10);
 Bounce buttonStart = Bounce(8, 10);
 Bounce buttonSelect = Bounce(21, 10);
 
-char makeDirectory(char folder, char file){
-  char directory = folder;
-    strcat("/", directory);
-    strcat(file, directory);
-    strcat(".wav", directory);
-  return directory;
-}
 
-    class Preset {
-  public:
-  char folder[9];
-  char a[9];
-  char b[9];
-  char x[9];
-  char y[9];
-  char up[9];
-  char down[9];
-  char left[9];
-  char right[9];
-  char l[9];
-  char r[9];
-  char startButton;
-  char selectButton;
-  char bgr[8][9];
-  void setBgrArray(char arr[8][9]) {
-    for (int i = 0; i < 8; i++) {
-        strcpy(bgr[i], arr[i]);
-    }
-  }
-  void playFile(char *input) {
-    char directory = makeDirectory(folder, input);
-    playSdWav1.play(directory);
-    Serial.println(input);
-    Serial.print("directory: ");
-    Serial.print(directory);
-  }
-  void playRandomBgr() {
-    //not working...
-    srand((unsigned)millis());
-    int randIndex = rand() % 8;
-    char directory = makeDirectory(folder, bgr[randIndex]);
-    playSdWav2.play(directory);
-    Serial.println("playing background music: ");
-    Serial.print(directory);
-  }
-  Preset() {
-    strcpy(a, "snare");
-    strcpy(b, "kick");
-    strcpy(x, "hhclosed");
-    strcpy(y, "hhopen");
-    strcpy(up, "hhclosed");
-    strcpy(down, "kick");
-    strcpy(left, "hhopen");
-    strcpy(right, "snare");
-    strcpy(l, "clap");
-    strcpy(r, "rim");
-    }
-};
+
 
 int selectPin = 21;
 
@@ -106,19 +50,61 @@ bool loopOn = false;
 
 bool gameState = true;
 
-float vol = 0.5;
+float vol = 0.8;
 
 int tempo = 200;
 
-Preset drumPresets[4];
-Preset gamePresets[4];
+const char *drumPresets[4];
+const char *gamePresets[4];
 
 int numberOfDrums = sizeof(drumPresets)/sizeof(drumPresets[0]);
 int numberOfGames = sizeof(gamePresets)/sizeof(gamePresets[0]);
 
 int currentIndex = 0;
 
-Preset currentPreset;
+const char *currentPreset;
+
+void playFile(const char *input) {
+    char combined[32] = {0};
+    
+    strcpy(combined, currentPreset);
+    strcat(combined, "/");
+    strcat(combined, input);
+    File folder = SD.open(combined);
+    File sound = folder.openNextFile();
+    strcat(combined, sound.name());
+    playSdWav1.play(combined);
+
+}
+
+void playRandomBgr() {
+  
+  char combined[32] = {0};
+  
+  strcpy(combined, currentPreset);
+  strcat(combined, "/bgr");
+  File directory = SD.open(combined);
+  
+  int bgrSize = 0;
+  
+  while (true) {
+    File entry = directory.openNextFile();
+    if (entry) {
+      bgrSize++
+    }else{
+      directory.rewindDirectory();
+      srand((unsigned)millis());
+      int randIndex = rand() % bgrSize;
+      for (int i = 1; i <= randIndex; i++) {
+        File entry = directory.openNextFile();
+        if (i == randIndex) {
+          strcat(combined, entry.name());
+          playSdWav2.play(combined);
+        }
+      break;
+    }
+  }  
+}
 
 char konamiCode[11][9] = {"Up", "Up", "Down", "Down", "Left", "Right", "Left", "Right", "B", "A", "Start"};
     int konamiCodePlace = 0;
@@ -158,88 +144,17 @@ void setup() {
   pinMode(20, INPUT);
   pinMode(21, INPUT);
   
-  Preset kit606("606");
-  Preset kit707("707");
-  Preset kit808("808");
-  Preset kit909("909");
-  Preset vinylKit("vinyl");
+  drumPresets[0] = "postal";
+  drumPresets[1] = "808"
+  drumPresets[2] = "909";
+  drumPresets[3] = "vinyl";
   
-  Preset goingPostal("postal");
-  strcpy(goingPostal.y, "clap");
-  strcpy(goingPostal.left, "revclap");
-  strcpy(goingPostal.right, "revsnare");
-  strcpy(goingPostal.l, "guio");
-  strcpy(goingPostal.r, "rim");
+  gamePresets[0] = "megaman";
+  gamePresets[1] = "smb";
+  gamePresets[2] = "zelda";
+  gamePresets[3] = "sonic";
 
-  Preset SMB1("smb");
-  strcpy(SMB1.a, "coin");
-  strcpy(SMB1.b, "jump");
-  strcpy(SMB1.x, "firework");
-  strcpy(SMB1.y, "fireball");
-  strcpy(SMB1.up, "blockbr");
-  strcpy(SMB1.down, "pipe");
-  strcpy(SMB1.left, "powerup");
-  strcpy(SMB1.right, "stomp");
-  strcpy(SMB1.l, "powerup");
-  strcpy(SMB1.r, "1-up");
-  char smbArr[8][9] = {"theme", "theme", "water", "castle", "undrwrld", "theme", "castle", "undrwrld"};
-  SMB1.setBgrArray(smbArr);
-  
-  Preset megaMan("megaman");
-  strcpy(megaMan.a, "shoot");
-  strcpy(megaMan.b, "jump");
-  strcpy(megaMan.x, "hit");
-  strcpy(megaMan.y, "blowup");
-  strcpy(megaMan.up, "exit");
-  strcpy(megaMan.down, "appear");
-  strcpy(megaMan.left, "energy");
-  strcpy(megaMan.right, "sheen");
-  strcpy(megaMan.l, "death");
-  strcpy(megaMan.r, "life");
-  char mmArr[8][9] = {"airman", "bombman", "elecman", "cutman", "skullman", "snakeman", "sparkman", "wily"};
-  megaMan.setBgrArray(mmArr);  
-  
-  Preset LOZ("loz");
-  strcpy(LOZ.a, "swrdslsh");
-  strcpy(LOZ.b, "shield");
-  strcpy(LOZ.x, "arrow");
-  strcpy(LOZ.y, "bombdrop");
-  strcpy(LOZ.up, "magicrod");
-  strcpy(LOZ.down, "enmyhit");
-  strcpy(LOZ.left, "bombblow");
-  strcpy(LOZ.right, "enmydie");
-  strcpy(LOZ.l, "secret");
-  strcpy(LOZ.r, "recorder");
-  char lozArr[8][9] = {"dthmnt", "dungeon", "theme", "dthmnt", "dungeon", "theme", "dungeon", "theme"};
-  LOZ.setBgrArray(lozArr);
-  
-  Preset sonic("sonic");  
-  strcpy(sonic.a, "charge");
-  strcpy(sonic.b, "jump");
-  strcpy(sonic.x, "slash");
-  strcpy(sonic.y, "ring");
-  strcpy(sonic.up, "spring");
-  strcpy(sonic.down, "itembrk");
-  strcpy(sonic.left, "screech");
-  strcpy(sonic.right, "stall");
-  strcpy(sonic.l, "ringlose");
-  strcpy(sonic.r, "wrjump");
-  char sonicArr[8][9] = {"anglisl1", "anglisl2", "emrldhll", "hydro1", "hydro2", "anglisl2", "emrldhll", "hydro2"};
-  sonic.setBgrArray(sonicArr);
-  
-  //Preset EJW2("606");
-
-  drumPresets[0] = goingPostal;
-  drumPresets[1] = kit808;
-  drumPresets[2] = kit909;
-  drumPresets[3] = vinylKit;
-
-  gamePresets[0] = SMB1;
-  gamePresets[1] = megaMan;
-  gamePresets[2] = LOZ;
-  gamePresets[3] = sonic;
-  //gamePresets[4] = EJW2;
-  
+    
   currentPreset = gamePresets[currentIndex];
 
   Serial.begin(9600);
@@ -262,34 +177,34 @@ void loop() {
   if (!gameState){
     if (loopOn == true) {
       //too loud
-      playSdWav2.play(makeDirectory(currentPreset.folder, currentPreset.x));
+      playFile("Y");
       delay(tempo);
     }
   }
 
   if (buttonA.update()){
     if (buttonA.fallingEdge()){
-      currentPreset.playFile(currentPreset.a);
+      playFile("A");
       konamiCodeCheck("A");
     }
   }
 
   if (buttonB.update()){
     if (buttonB.fallingEdge()){
-      currentPreset.playFile(currentPreset.b);
+      playFile("B");
       konamiCodeCheck("B");
     }
   }
   if (buttonX.update()){
     if (buttonX.fallingEdge()){
-      currentPreset.playFile(currentPreset.x);
+      playFile("X");
       konamiCodePlace = 0;
     }
   }
 
   if (buttonY.update()){
     if (buttonY.fallingEdge()){
-      currentPreset.playFile(currentPreset.y);
+      playFile("Y");
       konamiCodePlace = 0;
     }
   }
@@ -300,14 +215,14 @@ void loop() {
         vol = vol + 0.1;
         sgtl5000_1.volume(vol);
       }
-      currentPreset.playFile(currentPreset.up);
+      playFile("Up");
       konamiCodeCheck("Up");
     }
   }
 
   if (buttonDown.update()){
     if (buttonDown.fallingEdge()){
-      currentPreset.playFile(currentPreset.down);
+      playFile("Down");
       if (digitalRead(selectPin) == LOW && vol > 0){
         vol = vol - 0.1;
         sgtl5000_1.volume(vol);
@@ -349,7 +264,7 @@ void loop() {
          konamiCodeCheck("Left");
       }
       //do this if select is pressed or not (put this with konamiCodeCheck if it should only be done without select
-      currentPreset.playFile(currentPreset.left);
+      playFile("Left");
     }
   }
 
@@ -391,7 +306,7 @@ void loop() {
         konamiCodeCheck("Right");
       }
       //plays no matter what
-      currentPreset.playFile(currentPreset.right);
+      playFile("Right");
     }
   }
 
@@ -404,7 +319,7 @@ void loop() {
           playSdWav2.stop();
         }else{
           //if not playing, start playing a random bgr
-          currentPreset.playRandomBgr();
+          playRandomBgr();
         }
         konamiCodeCheck("Start");
       //always happens whether successfully inputting code or not
@@ -427,7 +342,7 @@ void loop() {
       if (digitalRead(selectPin) == LOW && tempo > 100) {
         tempo = tempo +5;
       }
-      currentPreset.playFile(currentPreset.l);
+      playFile("L");
       konamiCodePlace = 0;
     }
   }
@@ -437,7 +352,7 @@ void loop() {
       if (digitalRead(selectPin) == LOW && tempo < 1000) {
          tempo = tempo -5;
       }
-      currentPreset.playFile(currentPreset.r);
+      playFile("R");
       konamiCodePlace = 0;
     }
   }
