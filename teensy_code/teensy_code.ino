@@ -41,7 +41,15 @@ Bounce buttonLeft = Bounce(20, 10);
 Bounce buttonStart = Bounce(8, 10);
 Bounce buttonSelect = Bounce(21, 10);
 
-class Preset {
+char makeDirectory(char folder, char file){
+  char directory = folder;
+    strcat(directory, "/");
+    strcat(directory, file);
+    strcat(directory, ".wav");
+  return directory;
+}
+
+    class Preset {
   public:
   String folder;
   String a;
@@ -80,20 +88,6 @@ class Preset {
   }
   Preset() {
     }
-  Preset(String folderDir){
-      folder = folderDir;
-      a = "snare";
-      b = "kick";
-      x = "hhclosed";
-      y = "hhopen";
-      up = "hhclosed";
-      down = "kick";
-      left = "hhopen";
-      right = "snare";
-      l = "clap";
-      r = "rim";
-      startButton = "";
-  }
 };
 
 
@@ -163,13 +157,14 @@ void setup() {
   Preset vinylKit("vinyl");
   
   Preset goingPostal("postal");
-  goingPostal.y = "clap";
-  goingPostal.left = "revclap";
-  goingPostal.right = "revsnare";
-  goingPostal.l = "guio";
-  goingPostal.r = "rim";
+  strcpy(goingPostal.y, "clap");
+  strcpy(goingPostal.left, "revclap");
+  strcpy(goingPostal.right, "revsnare");
+  strcpy(goingPostal.l, "guio");
+  strcpy(goingPostal.r, "rim");
 
   Preset SMB1("smb");
+<<<<<<< HEAD
   SMB1.a = "coin";
   SMB1.b = "jump";
   SMB1.x = "firework";
