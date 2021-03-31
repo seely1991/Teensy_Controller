@@ -26,28 +26,32 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=64.5,50
 
 Bounce buttonA = Bounce(0, 10);
 Bounce buttonB = Bounce(1, 10);
-Bounce buttonX = Bounce(3, 10);
 Bounce buttonY = Bounce(2, 10);
+Bounce buttonX = Bounce(3, 10);
 Bounce buttonR = Bounce(4, 10);
 Bounce buttonL = Bounce(5, 10);
-Bounce buttonDown = Bounce(17, 10);
-Bounce buttonRight = Bounce(16, 10);
-Bounce buttonUp = Bounce(15, 10);
-Bounce buttonLeft = Bounce(20, 10);
 Bounce buttonStart = Bounce(8, 10);
+Bounce buttonUp = Bounce(15, 10);
+Bounce buttonRight = Bounce(16, 10);
+Bounce buttonDown = Bounce(17, 10);
+Bounce buttonLeft = Bounce(20, 10);
 Bounce buttonSelect = Bounce(21, 10);
 
 
 
-
+//used for shorthand when checking if select button is being held
 int selectPin = 21;
 
+//used to determine whether the drum machine hihat is being looped or not in the drum state
 bool loopOn = false;
 
+//used to determine if the game state or drum state is active (inputting the Konami code will activate the drums tate)
 bool gameState = true;
 
+//sets the initial volume
 float vol = 0.9;
 
+//used to change volume by an increment set as num
 void changeVolume(float num) {
   vol = vol + num;
   mixer1.gain(0, vol);
@@ -57,26 +61,40 @@ void changeVolume(float num) {
   Serial.println(vol);
 }
 
+//tempo for the looped hihat in the drum state
 int tempo = 200;
 
+//array to hold file folder extensions for drum preset folders
 char drumPresets[40][32];
 
+//array to hold file folder extensions for game preset folders
 char gamePresets[40][32];
 
+//used to hold the number of drum and game presets to be used when switching presets
 int numberOfDrums = 0;
 int numberOfGames = 0;
+
+//used to hold the number of background music files to be able to generate a random number that would pick a bgr file at random
+//stores the number of BGR files in the same index corresponding to the index of the preset in gamePresets 
+//(therefore being able to be called using the same reference index stored in currentIndex
 int numberOfBgr[40];
 
+//variable used to determine which preset is currently active in the drum or game arrays, depending on whther or not the drum or game state is active
 int currentIndex = 0;
 
+//used to point to the string stored in the game or drum state arrays that will be used as the current folder extension acting as the current preset
 const char *currentPreset;
 
+//function to combine the current preset string (or preset folder) and the button pressed. \
+//Concatenate file extension (variable named "combined") will look something like this: "_GAMES/MARIO/A/COIN.WAV"
 void playFile(const char *input) {
     char combined[32] = {0};
     Serial.println(input);
     strcpy(combined, currentPreset);
     strcat(combined, "/");
     strcat(combined, input);
+  //combined now looks like "_GAMES/MARIO/A" if input is "A." 
+  //SD.open will then find the first file in the "A" folder and the name of this file will be concatenated onto combined variable
     File folder = SD.open(combined);
     File sound = folder.openNextFile();
     if (!sound) {
@@ -87,7 +105,7 @@ void playFile(const char *input) {
     strcat(combined, sound.name());
     Serial.println("combined: ");
     Serial.println(combined);
-    
+    //play the file
     playSdWav1.play(combined);
 
 }
@@ -97,6 +115,7 @@ int getRandomNumber(int maximum) {
     return rand() % maximum;
   }
 
+//function to play a background music file from the "BGR" folder in the current preset folder
 void playRandomBgr() {
   Serial.println("\ntrying to play bgr");
   
@@ -109,8 +128,7 @@ void playRandomBgr() {
 
   int bgrSize = numberOfBgr[currentIndex];
   
-  srand((unsigned)millis());
-  int randIndex = (rand() % bgrSize) + 1;
+  int randIndex = getRandomNumber(bgrSize) + 1;
   Serial.println("random index = ");
   Serial.print(randIndex);
   Serial.print("\n\n");
@@ -134,29 +152,65 @@ void playRandomBgr() {
   }
 }
 
+//the following code allows the Konami Code to be inputted for the purpose of switching from the game state to the drum state
 char konamiCode[11][9] = {"Up", "Up", "Down", "Down", "Left", "Right", "Left", "Right", "B", "A", "Start"};
 int konamiCodePlace = 0;
 
 bool konamiCodeCheck(const char *input) {
+  //what to do if the last input of the konami code is pressed
   if (!strcmp(konamiCode[konamiCodePlace], input)){
       if (konamiCodePlace == 10) {
           konamiCodePlace = 0;
           playSdWav2.stop();
           Serial.println("***You did the konami code!***");
           gameState = !gameState;
-          //change so that you can get out of drumPresets if done a second time
+          //will need to change so that you can get out of drumPresets if done a second time
           currentPreset = drumPresets[0];
           Serial.print(currentPreset);
       }else{
+        //what to do if any other Konami code input is correctly pressed
           konamiCodePlace++;
       }
     return true;
   }else{
+    //what to do if Konami code input is not pressed
     konamiCodePlace = 0;
     return false;
   }
 }
 
+
+//files should be arranged in the following manner:
+//    _GAMES (or _DRUMS if a drum preset
+//      MARIO
+//        A
+//          COIN.WAV
+//        B
+//          JUMP.WAV
+//        X
+//          FIREBALL.WAV
+//        Y
+//          BLOCK.WAV
+//        L
+//          1UP.WAV
+//        R
+//          POWERUP.WAV
+//        UP
+//          VINE.WAV
+//        DOWN
+//          PIPE.WAV
+//        LEFT
+//          BUMP.WAV
+//        RIGHT
+//          DEATH.WAV
+//        BGR (will not be present in a drum preset)
+//          OVERWRLD.WAV
+//          UNDRWRLD.WAV
+//          CASTLE.WAV
+//          WATER.WAV
+
+
+//used to scan the SD card to populate preset arrays
 void scanBgr(const char *folderName, int index) {
   char combined[32] = {0};
   strcpy(combined, folderName);
@@ -264,14 +318,13 @@ void setup() {
   //gamePresets[3] = "_GAMES/sonic";
 
   Serial.println(gamePresets[0]);
-  //currentIndex = getRandomNumber(numberOfGames);
+  //currentIndex = 0;
+  //currentPreset = gamePresets[currentIndex];
   currentPreset = gamePresets[getRandomNumber(numberOfGames)];
   delay(1000);   
 }
 
 void loop() {
-    //playSdWav1.play("_GAMES/_MEGAMAN/BGR/AIRMAN.wav");
-  
 //going to loop hihat in the delay of the tempo
   if (!gameState){
     if (loopOn == true) {
@@ -281,6 +334,7 @@ void loop() {
     }
   }
 
+  //what to do for each button press
   if (buttonA.update()){
     if (buttonA.fallingEdge()){
       Serial.print("a");
@@ -311,6 +365,7 @@ void loop() {
 
   if (buttonUp.update()){
     if (buttonUp.fallingEdge()){
+      //if select is being held as hotkey, increase volume
       if (digitalRead(selectPin) == LOW && vol < 1){
         changeVolume(0.1);
       }
@@ -322,6 +377,7 @@ void loop() {
   if (buttonDown.update()){
     if (buttonDown.fallingEdge()){
       playFile("Down");
+      //if select is being held as hotkey, decrease volume
       if (digitalRead(selectPin) == LOW && vol > 0.1){
         changeVolume(-0.1);
       }
@@ -419,6 +475,7 @@ void loop() {
       //always happens whether successfully inputting code or not
       if (digitalRead(selectPin) == LOW){
         //turns on loop if select is held
+        //**go back to make this work only in drum state
         loopOn = !loopOn;
         }
       }
@@ -433,6 +490,7 @@ void loop() {
 
   if (buttonL.update()){
     if (buttonL.fallingEdge()){
+      //if select is held as hotkey, decrease tempo (will increase the delay)
       if (digitalRead(selectPin) == LOW && tempo > 100) {
         tempo = tempo +5;
       }
@@ -443,6 +501,7 @@ void loop() {
 
   if (buttonR.update()){
     if (buttonR.fallingEdge()){
+      //if select is held as hotkey, increase tempo (will decrease the delay)
       if (digitalRead(selectPin) == LOW && tempo < 1000) {
          tempo = tempo -5;
       }
