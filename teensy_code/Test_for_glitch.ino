@@ -38,8 +38,37 @@ Bounce buttonLeft = Bounce(20, 10);
 Bounce buttonSelect = Bounce(21, 10);
 
 
-    
-    
+/*
+const char *currentPreset;
+
+void playFile(const char *input) {
+    char combined[32] = {0};
+    Serial.println(input);
+    strcpy(combined, currentPreset);
+    strcat(combined, "/");
+    strcat(combined, input);
+  //combined now looks like "_GAMES/MARIO/A" if input is "A." 
+  //SD.open will then find the first file in the "A" folder and the name of this file will be concatenated onto combined variable
+    File folder = SD.open(combined);
+    File sound = folder.openNextFile();
+    if (!sound) {
+      Serial.println("no file to play");
+      return;
+      }
+    strcat(combined, "/");
+    strcat(combined, sound.name());
+  
+    //try this?
+    //sound.close();
+    //?
+  
+    Serial.println("combined: ");
+    Serial.println(combined);
+    //play the file
+    playSdWav1.play(combined);
+
+}
+*/
     
 
 
@@ -57,6 +86,8 @@ void setup() {
   pinMode(17, INPUT_PULLUP);
   pinMode(20, INPUT_PULLUP);
   pinMode(21, INPUT_PULLUP);
+    
+  //currentPreset = "_MEGAMAN";
     
 
   Serial.begin(9600);
@@ -83,6 +114,7 @@ void loop() {
   //what to do for each button press
   if (buttonA.update()){
     if (buttonA.fallingEdge()){
+        //playFile("A");
       playSDWav1.play("JUMP.WAV");
     }
   }
