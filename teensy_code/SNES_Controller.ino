@@ -103,6 +103,11 @@ void playFile(const char *input) {
       }
     strcat(combined, "/");
     strcat(combined, sound.name());
+  
+    //try this?
+    sound.close();
+    //?
+  
     Serial.println("combined: ");
     Serial.println(combined);
     //play the file
@@ -145,9 +150,13 @@ void playRandomBgr() {
         Serial.print(combined);
         Serial.print("\n\n");
         if (!SD.exists(combined)){
+          //will not attempt to play a file if it is not present
           return;
           }
       playSdWav2.play(combined);
+      //try this?
+      entry.close();
+      //?
       }
   }
 }
