@@ -38,9 +38,8 @@ Bounce buttonLeft = Bounce(20, 10);
 Bounce buttonSelect = Bounce(21, 10);
 
 
-/*
-const char *currentPreset;
 
+const char *currentPreset;
 void playFile(const char *input) {
     char combined[32] = {0};
     Serial.println(input);
@@ -49,6 +48,7 @@ void playFile(const char *input) {
     strcat(combined, input);
   //combined now looks like "_GAMES/MARIO/A" if input is "A." 
   //SD.open will then find the first file in the "A" folder and the name of this file will be concatenated onto combined variable
+
     File folder = SD.open(combined);
     File sound = folder.openNextFile();
     if (!sound) {
@@ -57,18 +57,15 @@ void playFile(const char *input) {
       }
     strcat(combined, "/");
     strcat(combined, sound.name());
-  
-    //try this?
-    //sound.close();
-    //?
+
+
   
     Serial.println("combined: ");
     Serial.println(combined);
     //play the file
     playSdWav1.play(combined);
-
 }
-*/
+
     
 
 
@@ -87,7 +84,7 @@ void setup() {
   pinMode(20, INPUT_PULLUP);
   pinMode(21, INPUT_PULLUP);
     
-  //currentPreset = "_MEGAMAN";
+  currentPreset = "_MEGAMAN";
     
 
   Serial.begin(9600);
@@ -108,14 +105,14 @@ void setup() {
 
 void loop() {
 //going to loop hihat in the delay of the tempo
-  if (!playSDWav2.isPlaying()) {
-    playSDWav2.play("BOSS.WAV");
+  if (!playSdWav2.isPlaying()) {
+    playSdWav2.play("BOSS.WAV");
   }
   //what to do for each button press
   if (buttonA.update()){
     if (buttonA.fallingEdge()){
-        //playFile("A");
-      playSDWav1.play("JUMP.WAV");
+      playFile("A");
+      //playSdWav1.play("JUMP.WAV");
     }
   }
 }
