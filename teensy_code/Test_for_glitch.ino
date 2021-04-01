@@ -50,18 +50,29 @@ void playFile(const char *input) {
   //SD.open will then find the first file in the "A" folder and the name of this file will be concatenated onto combined variable
 
     File folder = SD.open(combined);
+    if (!folder) {
+        Serial.println("Something went wrong with the file path in playFile");
+        Serial.println("file path:   ");
+        Serial.print(combined);
+        return;
+    }
     File sound = folder.openNextFile();
     if (!sound) {
-      Serial.println("no file to play");
+      Serial.println("could not open next file");
+      Serial.println("file path:   ");
+      Serial.print(combined);
       return;
       }
     strcat(combined, "/");
     strcat(combined, sound.name());
+    
+    //folder.close();
+    //sound.close();
 
 
   
-    Serial.println("combined: ");
-    Serial.println(combined);
+    Serial.println("file path:   ");
+    Serial.print(combined);
     //play the file
     playSdWav1.play(combined);
 }
@@ -84,7 +95,7 @@ void setup() {
   pinMode(20, INPUT_PULLUP);
   pinMode(21, INPUT_PULLUP);
     
-  currentPreset = "_MEGAMAN";
+  currentPreset = "_GAMES/_MEGAMAN";
     
 
   Serial.begin(9600);
