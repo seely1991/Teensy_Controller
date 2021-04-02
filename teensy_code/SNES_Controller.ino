@@ -115,17 +115,17 @@ void playFile(const char *input) {
     //?
     */
   
-  if (!SD.exists(combined)) {
-    Serial.println("Cannot play file:  ");
-    Serial.print(combined);
-    return;
-  }
-  
+  if (SD.exists(combined)) {
     Serial.println("file path: ");
     Serial.println(combined);
     //play the file
     playSdWav1.play(combined);
-
+    return;
+  }else{
+    Serial.println("Cannot play file:  ");
+    Serial.print(combined);
+    return;
+  }
 }
 
 int getRandomNumber(int maximum) {
@@ -168,14 +168,18 @@ void playRandomBgr() {
           //will not attempt to play a file if it is not present
           return;
           }
-      entry.close();
-      directory.close();
-      playSdWav2.play(combined);
-      //try this?
-      
-      //?
+        entry.close();
+        directory.close();
+        if (SD.exists(combined)) {
+          playSdWav2.play(combined);
+          return;
+        }else{
+          Serial.println("something went wrong and the BGR cannot be played:  ");
+          Serial.println(combined);
+          return;
+        }     
       }
-  }
+   }
 }
 
 //the following code allows the Konami Code to be inputted for the purpose of switching from the game state to the drum state
@@ -252,6 +256,8 @@ void scanBgr(const char *folderName, int index) {
               bgrInDir++;
             }else{
               bgrDir.rewindDirectory();
+              bgr.close();
+              bgrDir.close();
               numberOfBgr[index] = bgrInDir;
               Serial.println(numberOfBgr[index]);
               break;
@@ -294,6 +300,8 @@ void scanFolder(const char *folderName, bool isGame) {
             Serial.println("done with");
             Serial.println(folderName);
             directory.rewindDirectory();
+            entry.close();
+            directory.close();
             break;
         }
         
