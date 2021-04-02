@@ -111,6 +111,7 @@ void playFile(const char *input) {
   
     //try this?
     sound.close();
+    foler.close();
     //?
     */
   
@@ -167,9 +168,11 @@ void playRandomBgr() {
           //will not attempt to play a file if it is not present
           return;
           }
+      entry.close();
+      directory.close();
       playSdWav2.play(combined);
       //try this?
-      entry.close();
+      
       //?
       }
   }
