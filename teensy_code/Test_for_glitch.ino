@@ -48,7 +48,11 @@ void playFile(const char *input) {
     strcat(combined, input);
   //combined now looks like "_GAMES/MARIO/A" if input is "A." 
   //SD.open will then find the first file in the "A" folder and the name of this file will be concatenated onto combined variable
-
+    if (!SD.exists(combined){
+        Serial.println("something went wrong when reading the file path:  ");
+        Serial.println(combined);
+        return;
+    }
     File folder = SD.open(combined);
     if (!folder) {
         Serial.println("Something went wrong with the file path in playFile");
@@ -66,15 +70,21 @@ void playFile(const char *input) {
     strcat(combined, "/");
     strcat(combined, sound.name());
     
-    //folder.close();
-    //sound.close();
+    sound.close();
+    file.close();
 
 
   
     Serial.println("file path:   ");
     Serial.print(combined);
-    //play the file
-    playSdWav1.play(combined);
+    if (SD.exists(combined){
+        playSdWav1.play(combined);
+        return;
+    }else{
+        Serial.println("something went wrong when trying to play the file path:  ");
+        Serial.println(combined);
+        return;
+    }
 }
 
     
