@@ -93,7 +93,12 @@ void playFile(const char *input) {
     strcpy(combined, currentPreset);
     strcat(combined, "/");
     strcat(combined, input);
-  //combined now looks like "_GAMES/MARIO/A" if input is "A." 
+    //**Comment the following line out and uncomment the lines after to experiment with scanning/reading the name of the file in a folder with the same name as the input
+    strcat(combined, ".WAV");
+    //combined now looks like "_GAMES/MARIO/A.WAV" if input is "A." 
+  
+  /*
+  //Experimental code meant to read the folder with the same name as the input and pull the name of the file inside this folder
   //SD.open will then find the first file in the "A" folder and the name of this file will be concatenated onto combined variable
     File folder = SD.open(combined);
     File sound = folder.openNextFile();
@@ -107,8 +112,14 @@ void playFile(const char *input) {
     //try this?
     sound.close();
     //?
+    */
   
-    Serial.println("combined: ");
+  if (!SD.exists(combined)) {
+    Serial.println("Cannot play file:  ");
+    Serial.print(combined);
+  }
+  
+    Serial.println("file path: ");
     Serial.println(combined);
     //play the file
     playSdWav1.play(combined);
@@ -150,6 +161,8 @@ void playRandomBgr() {
         Serial.print(combined);
         Serial.print("\n\n");
         if (!SD.exists(combined)){
+          Serial.println("Something went wrong,");
+          Serial.println("Please check playRandomBgr");
           //will not attempt to play a file if it is not present
           return;
           }
