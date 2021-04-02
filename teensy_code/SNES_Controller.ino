@@ -117,6 +117,7 @@ void playFile(const char *input) {
   if (!SD.exists(combined)) {
     Serial.println("Cannot play file:  ");
     Serial.print(combined);
+    return;
   }
   
     Serial.println("file path: ");
