@@ -64,6 +64,19 @@ void changeVolume(float num) {
 //tempo for the looped hihat in the drum state
 int tempo = 200;
 
+//duration in milliseconds between beats;
+int savedTime = millis();
+
+voic incrementTime() {
+  int tempoCheck = millis() - tempo;
+  if (tempoCheck >= savedTime) {
+    savedTime = millis();
+    playFile("Up");
+  }else{
+    return;
+  }
+};
+
 //array to hold file folder extensions for drum preset folders
 char drumPresets[40][32];
 
@@ -363,8 +376,9 @@ void loop() {
   if (!gameState){
     if (loopOn == true) {
       //too loud
-      playFile("Y");
-      delay(tempo);
+      //playFile("Y");
+      //delay(tempo);
+      incrementTimeBetweenBeats();
     }
   }
 
