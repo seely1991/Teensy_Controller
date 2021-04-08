@@ -71,7 +71,7 @@ voic incrementTime() {
   int tempoCheck = millis() - tempo;
   if (tempoCheck >= savedTime) {
     savedTime = millis();
-    playFile("Up");
+    playFile("X");
   }else{
     return;
   }
@@ -208,7 +208,11 @@ bool konamiCodeCheck(const char *input) {
           Serial.println("***You did the konami code!***");
           gameState = !gameState;
           //will need to change so that you can get out of drumPresets if done a second time
-          currentPreset = drumPresets[0];
+          if (gameState) {
+            currentPreset= gamePresets[0];
+          }else{
+            currentPreset = drumPresets[0];
+          }
           Serial.print(currentPreset);
       }else{
         //what to do if any other Konami code input is correctly pressed
@@ -367,7 +371,8 @@ void setup() {
   Serial.println(gamePresets[0]);
   //currentIndex = 0;
   //currentPreset = gamePresets[currentIndex];
-  currentPreset = gamePresets[getRandomNumber(numberOfGames)];
+  //currentPreset = gamePresets[getRandomNumber(numberOfGames)];
+  currentPreset = drumPresets[0];
   delay(1000);   
 }
 
