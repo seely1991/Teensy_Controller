@@ -108,7 +108,7 @@ void setup() {
     
 
   Serial.begin(9600);
-  AudioMemory(8);
+  AudioMemory(16);
   sgtl5000_1.enable();
   sgtl5000_1.volume(0.5);
   SPI.setMOSI(SDCARD_MOSI_PIN);
