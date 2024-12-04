@@ -41,51 +41,50 @@ Bounce buttonSelect = Bounce(21, 10);
 
 const char *currentPreset;
 void playFile(const char *input) {
-    char combined[32] = {0};
+    char combined[128] = {0};  // Increased buffer size
     Serial.println(input);
     strcpy(combined, currentPreset);
     strcat(combined, "/");
     strcat(combined, input);
-  //combined now looks like "_GAMES/MARIO/A" if input is "A." 
-  //SD.open will then find the first file in the "A" folder and the name of this file will be concatenated onto combined variable
-    if (!SD.exists(combined){
-        Serial.println("something went wrong when reading the file path:  ");
+
+    if (!SD.exists(combined)) {
+        Serial.println("Path does not exist: ");
         Serial.println(combined);
         return;
     }
+
     File folder = SD.open(combined);
     if (!folder) {
-        Serial.println("Something went wrong with the file path in playFile");
-        Serial.println("file path:   ");
-        Serial.print(combined);
-        return;
-    }
-    File sound = folder.openNextFile();
-    if (!sound) {
-      Serial.println("could not open next file");
-      Serial.println("file path:   ");
-      Serial.print(combined);
-      return;
-      }
-    strcat(combined, "/");
-    strcat(combined, sound.name());
-    
-    sound.close();
-    file.close();
-
-
-  
-    Serial.println("file path:   ");
-    Serial.print(combined);
-    if (SD.exists(combined){
-        playSdWav1.play(combined);
-        return;
-    }else{
-        Serial.println("something went wrong when trying to play the file path:  ");
+        Serial.println("Failed to open folder: ");
         Serial.println(combined);
         return;
     }
+
+    File sound = folder.openNextFile();
+    if (!sound) {
+        Serial.println("No files in folder: ");
+        Serial.println(combined);
+        folder.close();
+        return;
+    }
+
+    strcat(combined, "/");
+    strcat(combined, sound.name());
+    sound.close();  // Properly close the sound file
+    folder.close(); // Properly close the folder
+
+    Serial.println("Playing file: ");
+    Serial.println(combined);
+    if (SD.exists(combined)) {
+        if (!playSdWav1.isPlaying()) {
+            playSdWav1.play(combined);
+        }
+    } else {
+        Serial.println("File does not exist: ");
+        Serial.println(combined);
+    }
 }
+
 
     
 
